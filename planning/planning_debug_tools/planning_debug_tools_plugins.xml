@@ -1,0 +1,7 @@
+<library path="planning_debug_tools_rviz_plugins">
+  <class name="planning_debug_tools/PerceptionReproducerPanel"
+         type="planning_debug_tools::PerceptionReproducerPanel"
+         base_class_type="rviz_common::Panel">
+    <description>Panel to display perception reproducer status.</description>
+  </class>
+</library>

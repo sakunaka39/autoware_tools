@@ -27,6 +27,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include <planning_debug_tools/msg/perception_reproducer_status.hpp>
+
 namespace autoware::planning_debug_tools
 {
 
@@ -73,6 +75,13 @@ private:
   std::unordered_map<size_t, rclcpp::Time> ego_odom_id2last_published_timestamp_;
   std::optional<geometry_msgs::msg::Pose> last_sequenced_ego_pose_;
   std::optional<rclcpp::Time> last_published_timestamp_;
+  std::optional<size_t> last_used_idx_;
+  std::optional<rclcpp::Time> last_moving_time_;
+
+  rclcpp::Publisher<::planning_debug_tools::msg::PerceptionReproducerStatus>::SharedPtr status_pub_;
+  std::optional<rclcpp::Time> last_real_time_;
+  std::optional<rclcpp::Time> last_bag_time_;
+  double smoothed_speed_ratio_ = 0.0;
 };
 
 }  // namespace autoware::planning_debug_tools

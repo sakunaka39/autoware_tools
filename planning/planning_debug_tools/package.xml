@@ -42,6 +42,7 @@
   <depend>rosbag2_transport</depend>
   <depend>sensor_msgs</depend>
   <depend>tier4_planning_msgs</depend>
+  <depend>rviz_common</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>autoware_lint_common</test_depend>

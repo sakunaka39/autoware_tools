@@ -16,7 +16,8 @@
 #include "perception_reproducer.hpp"
 
 #include <QCommandLineParser>
-#include <QCoreApplication>
+// #include <QCoreApplication>
+#include <QApplication>
 #include <rclcpp/rclcpp.hpp>
 
 #include <iostream>
@@ -36,7 +37,7 @@ int main(int argc, char ** argv)
     }
     int qt_argc = static_cast<int>(qt_argv.size());
 
-    QCoreApplication app(qt_argc, qt_argv.data());
+    QApplication app(qt_argc, qt_argv.data());
     app.setApplicationName("perception_reproducer");
     app.setApplicationVersion(PACKAGE_VERSION);
     const std::string app_desc =
@@ -170,7 +171,10 @@ int main(int argc, char ** argv)
     rclcpp::executors::MultiThreadedExecutor executor;
     executor.add_node(node);
 
-    executor.spin();
+    while (rclcpp::ok()) {
+      executor.spin_some();
+      app.processEvents();
+    }
     rclcpp::shutdown();
   } catch (const std::exception & e) {
     std::cerr << "Exception in main(): " << e.what() << std::endl;
