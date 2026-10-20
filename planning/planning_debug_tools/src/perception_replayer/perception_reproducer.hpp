@@ -28,6 +28,7 @@
 #include <vector>
 
 #include <planning_debug_tools/msg/perception_reproducer_status.hpp>
+#include <std_msgs/msg/bool.hpp>
 
 namespace autoware::planning_debug_tools
 {
@@ -38,7 +39,7 @@ struct PerceptionReproducerParam : public PerceptionReplayerCommonParam
   double reproduce_cool_down;
   bool noise;
   bool verbose;
-  bool publish_route;
+  // bool publish_route;
 };
 
 class PerceptionReproducer : public PerceptionReplayerCommon
@@ -77,6 +78,8 @@ private:
   std::optional<rclcpp::Time> last_published_timestamp_;
   std::optional<size_t> last_used_idx_;
   std::optional<rclcpp::Time> last_moving_time_;
+  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sub_enable_fast_forward_;
+  bool enable_fast_forward_ = true;
 
   rclcpp::Publisher<::planning_debug_tools::msg::PerceptionReproducerStatus>::SharedPtr status_pub_;
   std::optional<rclcpp::Time> last_real_time_;

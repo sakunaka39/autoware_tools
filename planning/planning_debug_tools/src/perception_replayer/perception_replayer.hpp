@@ -19,6 +19,9 @@
 #include "time_manager_widget.hpp"
 
 #include <rclcpp/rclcpp.hpp>
+#include <planning_debug_tools/msg/perception_reproducer_status.hpp>
+#include <std_msgs/msg/bool.hpp>
+#include <optional>
 
 namespace autoware::planning_debug_tools
 {
@@ -42,6 +45,15 @@ private:
   // State
   double rate = 1.0;
   const double delta_time = 0.1;  // [s] 10 Hz
+
+  rclcpp::Publisher<::planning_debug_tools::msg::PerceptionReproducerStatus>::SharedPtr status_pub_;
+  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sub_enable_fast_forward_;
+  
+  bool enable_fast_forward_ = true;
+  std::optional<rclcpp::Time> last_moving_time_;
+  std::optional<rclcpp::Time> last_real_time_;
+  std::optional<rclcpp::Time> last_bag_time_;
+  double smoothed_speed_ratio_ = 0.0;
 };
 }  // namespace autoware::planning_debug_tools
 

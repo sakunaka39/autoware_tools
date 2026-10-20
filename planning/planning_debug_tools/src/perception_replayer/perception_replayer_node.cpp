@@ -83,6 +83,11 @@ int main(int argc, char * argv[])
       "Only publishes when the message changes (i.e., not redundantly).");
     options << replay_route_option;
 
+    QCommandLineOption pub_route_option(
+      QStringList() << "p" << "pub-route",
+      "publish route created from the initial pose and goal pose retrieved from the beginning and end of the rosbag.");
+    options << pub_route_option;
+
     for (const auto & option : options) {
       parser.addOption(option);
     }
@@ -116,6 +121,7 @@ int main(int argc, char * argv[])
 
     perception_replayer_param.tracked_object = parser.isSet(tracked_object_option);
     perception_replayer_param.replay_route = parser.isSet(replay_route_option);
+    perception_replayer_param.publish_route = parser.isSet(pub_route_option);
 
     rclcpp::NodeOptions node_options;
     auto node = std::make_shared<PerceptionReplayer>(perception_replayer_param, node_options);

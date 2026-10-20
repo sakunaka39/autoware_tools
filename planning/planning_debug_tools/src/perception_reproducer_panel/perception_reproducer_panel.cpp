@@ -14,6 +14,7 @@ PerceptionReproducerPanel::PerceptionReproducerPanel(QWidget * parent)
   progress_label_ = new QLabel("Bag Progress: -");
   current_bag_label_ = new QLabel("Current Bag: -");
   time_label_ = new QLabel("Time: - / -");
+  fast_forward_checkbox_ = new QCheckBox("Enable Fast Forward (Stop > 3s)");
 
   // スタイル設定（見やすく太字にするなど）
   status_label_->setStyleSheet("font-weight: bold; font-size: 18px;"); // 大きくする
@@ -24,6 +25,7 @@ PerceptionReproducerPanel::PerceptionReproducerPanel(QWidget * parent)
   progress_label_->setStyleSheet(normal_style);
   current_bag_label_->setStyleSheet(normal_style);
   time_label_->setStyleSheet(normal_style);
+  fast_forward_checkbox_->setChecked(true);
   
   layout->addWidget(status_label_);
   layout->addWidget(speed_ratio_label_);
@@ -31,14 +33,19 @@ PerceptionReproducerPanel::PerceptionReproducerPanel(QWidget * parent)
   layout->addWidget(progress_label_);
   layout->addWidget(current_bag_label_);
   layout->addWidget(time_label_);
+  layout->addWidget(fast_forward_checkbox_);
   setLayout(layout);
+
+  connect(fast_forward_checkbox_, SIGNAL(stateChanged(int)), this, SLOT(onFastForwardCheckboxChanged(int)));
 }
 
 void PerceptionReproducerPanel::onInitialize()
 {
   node_ = this->getDisplayContext()->getRosNodeAbstraction().lock()->get_raw_node();
+  pub_enable_fast_forward_ = node_->create_publisher<std_msgs::msg::Bool>(
+    "/perception_replayer_common/enable_fast_forward", 1);
   sub_status_ = node_->create_subscription<msg::PerceptionReproducerStatus>(
-    "/perception_reproducer/status", 1,
+    "/perception_replayer_common/status", 1,
     [this](const msg::PerceptionReproducerStatus::ConstSharedPtr msg) {
       status_label_->setText(QString("Status: %1").arg(msg->status_text.c_str()));
       speed_ratio_label_->setText(QString("Playback Ratio: x%1").arg(msg->current_speed_ratio, 0, 'f', 1));
@@ -67,6 +74,16 @@ void PerceptionReproducerPanel::onInitialize()
       }
     });
 }
+
+void PerceptionReproducerPanel::onFastForwardCheckboxChanged(int state)
+{
+  if (pub_enable_fast_forward_) {
+    std_msgs::msg::Bool msg;
+    msg.data = (state == Qt::Checked);
+    pub_enable_fast_forward_->publish(msg);
+  }
+}
+
 }  // namespace planning_debug_tools
 
 PLUGINLIB_EXPORT_CLASS(planning_debug_tools::PerceptionReproducerPanel, rviz_common::Panel)

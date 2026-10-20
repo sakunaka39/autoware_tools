@@ -6,6 +6,8 @@
 #include <QVBoxLayout>
 #include <rclcpp/rclcpp.hpp>
 #include <planning_debug_tools/msg/perception_reproducer_status.hpp>
+#include <QCheckBox>
+#include <std_msgs/msg/bool.hpp>
 
 namespace planning_debug_tools
 {
@@ -26,6 +28,11 @@ private:
   QLabel * progress_label_;
   QLabel * current_bag_label_;
   QLabel * time_label_;
+  QCheckBox * fast_forward_checkbox_;
+  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr pub_enable_fast_forward_;
+
+private Q_SLOTS:
+  void onFastForwardCheckboxChanged(int state);
 };
 }  // namespace planning_debug_tools
 #endif

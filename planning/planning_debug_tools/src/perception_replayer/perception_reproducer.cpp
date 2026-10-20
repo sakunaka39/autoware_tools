@@ -37,12 +37,19 @@ PerceptionReproducer::PerceptionReproducer(
 
   ego_odom_search_radius_ = param_.search_radius;
 
-  status_pub_ = this->create_publisher<::planning_debug_tools::msg::PerceptionReproducerStatus>("~/status", 1);
-
   // subscription for /initialpose3d to refresh cool down and sync bag anchor
   sub_init_pos_ = this->create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
     "/initialpose3d", 1,
     std::bind(&PerceptionReproducer::on_pose_reset, this, std::placeholders::_1));
+  
+  status_pub_ = this->create_publisher<::planning_debug_tools::msg::PerceptionReproducerStatus>("/perception_replayer_common/status", 1);
+
+  sub_enable_fast_forward_ = this->create_subscription<std_msgs::msg::Bool>(
+    "/perception_replayer_common/enable_fast_forward", 1,
+    [this](const std_msgs::msg::Bool::ConstSharedPtr msg) {
+      enable_fast_forward_ = msg->data;
+      RCLCPP_INFO(get_logger(), "Fast forward is now %s", enable_fast_forward_ ? "ON" : "OFF");
+    });
 
   // calculate average ego odom interval
   RCLCPP_INFO(get_logger(), "Calculating average ego odom interval");
@@ -176,8 +183,7 @@ void PerceptionReproducer::on_timer()
     }
       */
      if (reproduce_sequence_indices_.empty() && last_used_idx_.has_value()) {
-      // 停止して3秒経過したら10フレームずつ進める（10倍速早送り）
-      size_t step = (stopped_duration > 3.0) ? 10 : 1;
+      size_t step = (enable_fast_forward_ && stopped_duration > 3.0) ? 10 : 1;
       
       size_t next_idx = last_used_idx_.value() + step;
       if (next_idx < rosbag_ego_odom_data_.size()) {
